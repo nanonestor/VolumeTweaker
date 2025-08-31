@@ -1,30 +1,34 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
-
-name: Build .NET Framework 4.8.1 App
+name: .NET Framework 4.8.1 Release
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main # Or your desired branch for releases
 
 jobs:
-  build:
-    runs-on: windows-latest
+  build-and-release:
+    runs-on: windows-latest # Use a Windows runner
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1
+      uses: microsoft/setup-msbuild@v2 # Action to set up MSBuild
+      with:
+        msbuild-version: latest # Use the latest available MSBuild
 
-    - name: Setup NuGet
-      uses: NuGet/setup-nuget@v1.0.5
+    - name: Build .NET Framework 4.8.1 project
+      run: msbuild VolumeTweaker.sln /p:Configuration=Release /p:Platform="Any CPU" /t:Rebuild
 
-    - name: Restore NuGet Packages
-      run: nuget restore YourSolutionName.sln
+    - name: Create Release Artifact
+      run: |
+        # Example: Copy build output to a staging directory for release
+        mkdir ReleaseArtifacts
+        xcopy /s /e /y "YourProjectName\bin\Release\*" "ReleaseArtifacts"
 
-    - name: Build Solution
-      run: msbuild.exe VolumeTweaker.sln /p:platform="Any CPU" /p:configuration="Release"
+    - name: Upload Release Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: YourApp-Release
+        path: ReleaseArtifacts
