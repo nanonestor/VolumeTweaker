@@ -32,8 +32,9 @@ You can play around with the `System.Threading.Thread.Sleep()` values in the pre
 **1.** Adjusts the volume % level from the current setting (-100 to 100)
 ```
 VolumeTweaker.exe -0.25
+VolumeTweaker.exe 11.33
 ```  
-**2.** Returns to console output the current system volume % level to two decimal places:
+**2.** Sends the current system volume % level to console output to two decimal places:
 ```
 VolumeTweaker level
 ```
