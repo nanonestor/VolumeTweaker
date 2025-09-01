@@ -16,7 +16,7 @@ jobs:
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '4.8.1'
+        dotnet-version: '481'
 
     - name: Restore dependencies
       run: dotnet restore
