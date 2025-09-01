@@ -24,3 +24,21 @@ This project started off as a way to make a lightweight background running scrip
 
 
 You can play around with the `System.Threading.Thread.Sleep()` values in the pre-compiled code to change the response times between setting and displaying - it can be a bit fussy to get resulting values that don't wander around.  This method is used because Windows currenty does **not** have an API supported method of triggering the on-screen display of volume, so here it's done with a fake key press event.  
+
+---
+
+### Possible argument types
+
+**1.** Adjusts the volume % level from the current setting (-100 to 100)
+```
+.\VolumeTweaker.exe -0.25
+```  
+**2.** Returns to console output the current system volume % level to two decimal places:
+```
+./VolumeTweaker level
+```
+**3.** `set` Sets the volume level to the % entered as second argument (0 to 100)
+```
+./VolumeTweaker set 33.25
+```
+---
