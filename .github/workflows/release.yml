@@ -25,7 +25,7 @@ jobs:
       run: dotnet build --configuration Release --no-restore
 
     - name: Publish application
-      run: dotnet publish --configuration Release --runtime win-x64 -o publish
+      run: dotnet publish --configuration -o publish
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
