@@ -11,11 +11,11 @@ Windows system volume is adjusted by the percent amount passed when the file is 
 
 Increases the level +12.5%
 ```
-.\VolumeTweaker.exe 12.5
+VolumeTweaker.exe 12.5
 ```
 Decreases the level -0.5%
 ```
-.\VolumeTweaker.exe -0.5
+VolumeTweaker.exe -0.5
 ```  
 
 ---
@@ -31,14 +31,14 @@ You can play around with the `System.Threading.Thread.Sleep()` values in the pre
 
 **1.** Adjusts the volume % level from the current setting (-100 to 100)
 ```
-.\VolumeTweaker.exe -0.25
+VolumeTweaker.exe -0.25
 ```  
 **2.** Returns to console output the current system volume % level to two decimal places:
 ```
-./VolumeTweaker level
+VolumeTweaker level
 ```
 **3.** `set` Sets the volume level to the % entered as second argument (0 to 100)
 ```
-./VolumeTweaker set 33.25
+VolumeTweaker set 33.25
 ```
 ---
