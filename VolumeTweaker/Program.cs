@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 class Program
 {
@@ -88,6 +90,9 @@ class Program
 
     static void Main(string[] args)
     {
+        Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+        Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+
         IMMDeviceEnumerator deviceEnumerator = null;
         IMMDevice device = null;
         IAudioEndpointVolume endpointVolume = null;
