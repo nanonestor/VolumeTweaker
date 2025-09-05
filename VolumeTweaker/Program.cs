@@ -171,7 +171,21 @@ class Program
                 // If 'level' was passed to the program write to console and then exit.
                 if (string.Equals(args[0], "level", StringComparison.OrdinalIgnoreCase))
                 {
+<<<<<<< Updated upstream
                     float percentVolume = (float)Math.Round(currentVolume * 100, 3);
+=======
+                    // Gets the current volume decibel (dB) level
+                    float currentVolumeDb;
+                    hr = endpointVolume.GetMasterVolumeLevel(out currentVolumeDb);
+                    if (hr != 0)
+                        return;
+
+                    // Rounds the current volume to 2 decimal places
+                    currentVolume = (float)Math.Round(currentVolume, 4);
+
+                    float percentVolume = (float)Math.Round(currentVolume * 100, 3);
+                    currentVolumeDb = (float)Math.Round(currentVolumeDb, 2);
+>>>>>>> Stashed changes
 
                     // Attaches the parent process console and then after using WriteLine detaches
                     AttachConsole(ATTACH_PARENT_PROCESS);
