@@ -105,7 +105,7 @@ class Program
             }
             float volumeChangePercent = float.TryParse(args[0], out volumeChangePercent) ? volumeChangePercent : 0;
 
-            if ((args.Length == 1) && !float.TryParse(args[0], out volumeChangePercent) && !string.Equals(args[0], "level", StringComparison.OrdinalIgnoreCase))
+            if ((args.Length == 1) && !float.TryParse(args[0], out volumeChangePercent) && !string.Equals(args[0], "level", StringComparison.OrdinalIgnoreCase) && !string.Equals(args[0], "db", StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
@@ -135,28 +135,62 @@ class Program
             // If the args length is 2 then process for setting the volume.
             if (args.Length == 2)
             {
-                // Sets a scalar for the volume level using the second arg passed.
-                float setVolume = float.Parse(args[1]) / 100f;
-                // Clamps the possible values to the range [0, 1]
-                setVolume = Math.Max(0f, Math.Min(1f, setVolume));
+                if (string.Equals(args[0], "level", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Sets a scalar for the volume level using the second arg passed.
+                    float setVolume = float.Parse(args[1]) / 100f;
+                    // Clamps the possible values to the range [0, 1]
+                    setVolume = Math.Max(0f, Math.Min(1f, setVolume));
 
-                // Simulate Volume Up key press and release - to trigger the Windows on-screen display of volume
-                keybd_event(VK_VOLUME_DOWN, 0, KEYEVENTF_EXTENDEDKEY, UIntPtr.Zero);
-                keybd_event(VK_VOLUME_DOWN, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, UIntPtr.Zero);
+                    // Simulate Volume Up key press and release - to trigger the Windows on-screen display of volume
+                    keybd_event(VK_VOLUME_DOWN, 0, KEYEVENTF_EXTENDEDKEY, UIntPtr.Zero);
+                    keybd_event(VK_VOLUME_DOWN, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, UIntPtr.Zero);
 
-                hr = endpointVolume.SetMasterVolumeLevelScalar(setVolume, ref guid);
+                    hr = endpointVolume.SetMasterVolumeLevelScalar(setVolume, ref guid);
 
-                System.Threading.Thread.Sleep(20);
-                // Simulate Volume Down key press and release to restore volume
-                keybd_event(VK_VOLUME_UP, 0, KEYEVENTF_EXTENDEDKEY, UIntPtr.Zero);
-                keybd_event(VK_VOLUME_UP, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, UIntPtr.Zero);
+                    System.Threading.Thread.Sleep(20);
+                    // Simulate Volume Down key press and release to restore volume
+                    keybd_event(VK_VOLUME_UP, 0, KEYEVENTF_EXTENDEDKEY, UIntPtr.Zero);
+                    keybd_event(VK_VOLUME_UP, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, UIntPtr.Zero);
 
-                System.Threading.Thread.Sleep(20);
+                    System.Threading.Thread.Sleep(20);
 
-                // sets the system volume equal to the specified level - AGAIN - to reset the key event changing it.
-                hr = endpointVolume.SetMasterVolumeLevelScalar(setVolume, ref guid);
+                    // sets the system volume equal to the specified level - AGAIN - to reset the key event changing it.
+                    hr = endpointVolume.SetMasterVolumeLevelScalar(setVolume, ref guid);
 
-                return;
+                    return;
+                }
+                if (string.Equals(args[0], "db", StringComparison.OrdinalIgnoreCase))
+                {
+                    // When argument used to set change in decibels using the second arg passed - sets the increment.
+                    float changeIncrementDB = float.Parse(args[1]);
+
+                    // Gets the current volume decibel (dB) level and then adds the changeIncrementDB to it.
+                    float currentVolumeDb;
+                    hr = endpointVolume.GetMasterVolumeLevel(out currentVolumeDb);
+                    if (hr != 0)
+                        return;
+
+                    float newVolumeDb = currentVolumeDb + changeIncrementDB;
+
+                    // Simulate Volume Up key press and release - to trigger the Windows on-screen display of volume
+                    keybd_event(VK_VOLUME_DOWN, 0, KEYEVENTF_EXTENDEDKEY, UIntPtr.Zero);
+                    keybd_event(VK_VOLUME_DOWN, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, UIntPtr.Zero);
+
+                    hr = endpointVolume.SetMasterVolumeLevel(newVolumeDb, ref guid);
+
+                    System.Threading.Thread.Sleep(20);
+                    // Simulate Volume Down key press and release to restore volume
+                    keybd_event(VK_VOLUME_UP, 0, KEYEVENTF_EXTENDEDKEY, UIntPtr.Zero);
+                    keybd_event(VK_VOLUME_UP, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, UIntPtr.Zero);
+
+                    System.Threading.Thread.Sleep(20);
+
+                    // sets the system volume equal to the specified level - AGAIN - to reset the key event changing it.
+                    hr = endpointVolume.SetMasterVolumeLevel(newVolumeDb, ref guid);
+
+                    return;
+                }
             }
 
             // If the args length is 1 then process for either volume change or level retrieval.
@@ -171,11 +205,22 @@ class Program
                 // If 'level' was passed to the program write to console and then exit.
                 if (string.Equals(args[0], "level", StringComparison.OrdinalIgnoreCase))
                 {
-                    float percentVolume = (float)Math.Round(currentVolume * 100, 3);
+                    // Gets the current volume decibel (dB) level
+                    float currentVolumeDb;
+                    hr = endpointVolume.GetMasterVolumeLevel(out currentVolumeDb);
+                    if (hr != 0)
+                        return;
+
+                    // Rounds the current volume to 2 decimal places
+                    currentVolume = (float)Math.Round(currentVolume, 2);
+
+                    float percentVolume = (float)Math.Round(currentVolume * 100, 2);
+                    currentVolumeDb = (float)Math.Round(currentVolumeDb, 2);
 
                     // Attaches the parent process console and then after using WriteLine detaches
                     AttachConsole(ATTACH_PARENT_PROCESS);
-                    Console.WriteLine($"Current volume level: {percentVolume}%");
+                    Console.WriteLine($"Current volume level: {percentVolume}% / {currentVolumeDb}dB");;
+
 
                     // keybd event for return - because without it running this from console won't exit all the way back out, and needs a keypress to return to prompt.
                     // If you figure out a better way than this but still be a WinExe project type i'm all ears!
